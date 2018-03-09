@@ -1,0 +1,76 @@
+---
+- name: install http
+  yum:
+    name: "{{ package }}"
+    state: installed
+
+- name: configure httpd.conf
+  template:
+    src: httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+#  notify: restart httpd
+
+- name: allow httpd to listen on tcp port
+  seport:
+    ports: "{{ httpd_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+
+- name: start apache
+  service:
+    name: "{{ package }}"
+    state: started
+    enabled: yes
+
+- name: install python-firewall
+  yum:
+    name: python-firewall
+    state: latest
+
+- name: install firewalld
+  yum:
+    name: firewalld
+    state: latest
+
+- name: start firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: enabled http at  firewall service
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: enabled https at firewall service
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: configure firewall rules
+  firewalld:
+    port: "{{ httpd_port }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: change index.html
+  template:
+    src: /home/admin/ansible/index.html.j2
+    dest: /var/www/html/index.html
+
+- name: create index.html
+  lineinfile:
+    dest: /var/www/html/index.html
+    regexp: '^Server '
+    line: " {{ ansible_hostname  }}"
+...
+
+
+

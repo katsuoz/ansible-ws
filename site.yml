@@ -1,0 +1,11 @@
+---
+- name: web
+  hosts: web
+  roles:
+    - apache
+
+- name: db
+  hosts: db
+  roles:
+    - mariadb
+
