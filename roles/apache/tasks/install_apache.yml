@@ -62,7 +62,7 @@
 
 - name: change index.html
   template:
-    src: /home/admin/ansible/index.html.j2
+    src: index.html.j2
     dest: /var/www/html/index.html
 
 - name: create index.html
